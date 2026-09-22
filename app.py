@@ -4,24 +4,23 @@ import pandas as pd
 
 st.set_page_config(page_title="Blackbox PRO - Only BUY", page_icon="📦", layout="wide")
 
-# --- 1. PASSWORD LOCK ---
+# 1. PASSWORD LOCK
 if "auth" not in st.session_state:
     st.session_state.auth = False
 if not st.session_state.auth:
     st.title("📦 Blackbox PRO - Locked")
-    pwd = st.text_input("Password daalo", type="password")
+    pwd = st.text_input("Password", type="password")
     if st.button("Unlock"):
-        if pwd == "rana123": # apna password
+        if pwd == "rana123":
             st.session_state.auth = True
             st.rerun()
         else:
             st.error("Galat password")
     st.stop()
 
-# --- 2. NIFTY 500 FULL LIST ---
+# 2. NIFTY 500 FULL LIST - 500 Stocks
 @st.cache_data
 def get_nifty500():
-    # Ye Nifty 500 ki full list hai (Wikipedia se li hui)
     return [
         "360ONE.NS","3MINDIA.NS","ABB.NS","ACC.NS","AIAENG.NS","APLAPOLLO.NS","AUBANK.NS","AARTIIND.NS","AAVAS.NS","ABBOTINDIA.NS",
         "ADANIENT.NS","ADANIGREEN.NS","ADANIPORTS.NS","ADANIPOWER.NS","ATGL.NS","AWL.NS","ABCAPITAL.NS","ABFRL.NS","AEGISLOG.NS","AETHER.NS",
@@ -32,7 +31,7 @@ def get_nifty500():
         "BHEL.NS","BPCL.NS","BHARTIARTL.NS","BIKAJI.NS","BIOCON.NS","BIRLACORPN.NS","BSOFT.NS","BLUEDART.NS","BLUESTARCO.NS","BBTC.NS",
         "BOSCHLTD.NS","BRITANNIA.NS","CESC.NS","CAMSLTD.NS","CANBK.NS","CAPLIPOINT.NS","CGCL.NS","CARBORUNIV.NS","CASTROLIND.NS","CEATLTD.NS",
         "CENTRALBK.NS","CDSL.NS","CENTURYPLY.NS","CERA.NS","CHALET.NS","CHAMBLFERT.NS","CHOLAFIN.NS","CHOLAHLDNG.NS","CIPLA.NS","CUB.NS",
-        "COALINDIA.NS","COFORGE.NS","COLPAL.NS","CAMS.NS","CONCOR.NS","COROMANDEL.NS","CRAFTSMAN.NS","CREDITACC.NS","CROMPTON.NS","CUMMINSIND.NS",
+        "COALINDIA.NS","COFORGE.NS","COLPAL.NS","CONCOR.NS","COROMANDEL.NS","CRAFTSMAN.NS","CREDITACC.NS","CROMPTON.NS","CUMMINSIND.NS",
         "DCMSHRIRAM.NS","DLF.NS","DABUR.NS","DALBHARAT.NS","DATAPATTNS.NS","DEEPAKFERT.NS","DEEPAKNTR.NS","DELHIVERY.NS","DEVYANI.NS","DIVISLAB.NS",
         "DIXON.NS","LALPATHLAB.NS","DRREDDY.NS","EIDPARRY.NS","EIHOTEL.NS","EPL.NS","EASEMYTRIP.NS","EICHERMOT.NS","ELGIEQUIP.NS","EMAMILTD.NS",
         "ENDURANCE.NS","ENGINERSIN.NS","ESCORTS.NS","EXIDEIND.NS","FDC.NS","FEDERALBNK.NS","FINEORG.NS","FINCABLES.NS","FINPIPE.NS","FSL.NS",
@@ -70,17 +69,17 @@ if "all_stocks" not in st.session_state:
 st.title("📦 Blackbox PRO - Only BUY Scanner")
 st.success(f"✅ NIFTY 500 Loaded: {len(st.session_state.all_stocks)} Stocks")
 
-# Add new stock
+# Naya stock add
 c1,c2 = st.columns([4,1])
 with c1:
-    new_stock = st.text_input("Naya stock add karo", placeholder="jaise SUZLON.NS", label_visibility="collapsed").upper().strip()
+    new_stock = st.text_input("Naya stock", placeholder="jaise SUZLON.NS", label_visibility="collapsed").upper().strip()
 with c2:
     if st.button("Add Stock"):
         if new_stock:
             if not new_stock.endswith(".NS"): new_stock += ".NS"
             if new_stock not in st.session_state.all_stocks:
                 st.session_state.all_stocks.insert(0, new_stock)
-                st.toast(f"{new_stock} add ho gaya!")
+                st.toast(f"{new_stock} added!")
 
 def get_close(df):
     c = df['Close']
@@ -92,7 +91,7 @@ filtered = st.session_state.all_stocks
 if search:
     filtered = [s for s in st.session_state.all_stocks if search.upper() in s]
 
-stocks = st.multiselect(f"Stocks chuno ({len(filtered)} me se)", filtered, default=filtered[:5])
+stocks = st.multiselect(f"Stocks chuno ({len(filtered)} me se)", filtered, default=filtered[:10])
 
 if st.button(f"Scan {len(stocks)} Stocks 🔍", type="primary"):
     buy_list = []
@@ -117,7 +116,6 @@ if st.button(f"Scan {len(stocks)} Stocks 🔍", type="primary"):
             lm = float(macd.iloc[-1])
             ls = float(sig.iloc[-1])
 
-            # ONLY BUY CONDITION
             if le9 > le26 and lm > ls:
                 sl = lc * 0.98
                 tgt = lc * 1.04
